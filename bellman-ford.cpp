@@ -1,5 +1,7 @@
 //intento de bellman-ford
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 const int infinito = 10000;
@@ -104,4 +106,38 @@ void bellman_ford(vertice *salida) {
         imprimir_ruta(actual);
         actual = actual->sig_lista_vertices;
     }
+}
+
+//grafo generado aleatoriamente
+int main() {
+    srand(time(NULL));
+
+    vertice *v1 = new vertice(); v1->dato = 1;
+    vertice *v2 = new vertice(); v2->dato = 2;
+    vertice *v3 = new vertice(); v3->dato = 3;
+    vertice *v4 = new vertice(); v4->dato = 4;
+    vertice *v5 = new vertice(); v5->dato = 5;
+    vertice *v6 = new vertice(); v6->dato = 6;
+
+    insertar_vertice(v1);
+    insertar_vertice(v2);
+    insertar_vertice(v3);
+    insertar_vertice(v4);
+    insertar_vertice(v5);
+    insertar_vertice(v6);
+
+    crear_arista(v2, v1, rand() % 21 - 5);
+    crear_arista(v3, v1, rand() % 21 - 5);
+    crear_arista(v4, v1, rand() % 21 - 5);
+    crear_arista(v3, v2, rand() % 21 - 5);
+    crear_arista(v4, v2, rand() % 21 - 5);
+    crear_arista(v4, v3, rand() % 21 - 5);
+    crear_arista(v5, v3, rand() % 21 - 5);
+    crear_arista(v5, v4, rand() % 21 - 5);
+    crear_arista(v6, v4, rand() % 21 - 5);
+    crear_arista(v6, v5, rand() % 21 - 5);
+
+    bellman_ford(v1);
+
+    return 0;
 }
