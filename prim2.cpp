@@ -51,20 +51,21 @@ void insertar_en_arbol(arista *insertar) { //insercion en el MST
     Arbol_MST = insertar; 
 }
 
-bool arista_es_adyacente(arista *arista , vertice *A) {
-    return (arista->llegada == A || arista->salida == A);
+bool arista_es_elegible(arista *arista) {
+    return (arista->llegada->descubierto || arista->salida->descubierto);
 }
 
-arista *buscar_siguiente(vertice *A) { //dada la lista de aristas y un vertice A de inicio, yo debo buscar la siguiente arista con adyacencia a 
-    //ese vertice A con menor peso (si tengo varias candidatas, elijo la menor)
+arista *buscar_siguiente() { //dada la lista de aristas, busco la arista de menor peso que este en la frontera visible del algoritmo
+    //(ya no busco en base a un vertice, si no evaluo todas las aristas y busco la de menor peso que tenga en sus extremos algun vertice ya alcanzado)
+    //no sucede el caso de elegir una con ambos vertices alcanzados y formar un bucle ya que al incio de la funcio  prim se llama a buscar_obsoletos()
     arista *recorrido = lista_aristas;
     arista *minima = NULL;
     while (recorrido) {
         if (!recorrido->evaluado) {
-            if (minima == NULL && arista_es_adyacente(recorrido, A)) {
+            if (minima == NULL && arista_es_elegible(recorrido)) {
                 minima = recorrido;
             }
-            else if (recorrido->peso < minima->peso && arista_es_adyacente(recorrido, A)) {
+            else if (recorrido->peso < minima->peso && arista_es_elegible(recorrido)) {
                 minima = recorrido;
             }
         }
@@ -73,11 +74,66 @@ arista *buscar_siguiente(vertice *A) { //dada la lista de aristas y un vertice A
     return minima;
 }
 
-vertice *elegir_vertice() { //todos los vertices estaran en un inicio como no evaluados. Este helper elegira solo los evaluados
-    //(que al inicio del algoritmo es el salida). Ya luego, en la funcion principal del prim, cuando se elija una arista, se marcara su otro
-    //adyacente como evaluado en caso de no estarlo
-    //Pero aqui surge la duda, y un error que tuve anteriormente. Luego de hacer la primera busqueda, no puedo ya sepultar a dicho vertice como evaluado
-    //porque sus aristas pueden seguir siendo mejores candidatas que las aristas de otros vertices no evaluados
-    //Mentira. No estoy sepultando a nadie. El bool alcanzado no los sepulta, los vuelve elegibles.
+void buscar_obsoletos() {
+    arista *recorrido = lista_aristas;
+    while (recorrido) {
+        if (recorrido->llegada->descubierto && recorrido->salida->descubierto && !recorrido->evaluado) {
+            recorrido->evaluado = true; //Se descarta instantaneamente.
+            //Aqui la pregunta es: Si mi nodo de llegada ya fue alcanzado y mi nodo de salida lo mismo, pero yo no he sido evaluado,
+            //ya consiguieron mejor camino hacia mis nodos salida y llegada. Ya no sirvo
+        }
+        recorrido = recorrido->siguiente_en_lista;
+    }
+}
 
+void imprimir_MST() {
+    arista *recorrido = Arbol_MST;
+    int total = 0;
+    cout << "MST: " << endl;
+    while (recorrido) {
+        cout << recorrido->llegada << " -> " << recorrido->salida <<
+        "; Peso: " << recorrido->peso;
+        total = total + recorrido->peso;
+    }
+    cout << "Peso total del MST: " << total << endl;
+}
+
+bool todas_aristas_evaluadas() {
+    arista *recorrido = lista_aristas;
+    while (recorrido) {
+        if (!recorrido->evaluado) {
+            return false;
+        }
+        recorrido = recorrido->siguiente_en_lista;
+    }
+    return true;
+}
+
+vertice *buscar_vecino(arista *A, vertice *actual) {
+    if (A->salida == actual) return A->llegada;
+    else {
+        return A->salida;
+    }
+}
+
+vertice *buscar_descubierto(arista *A) {
+    if (A->llegada->descubierto) return A->llegada;
+    else {
+        return A->salida;
+    }
+}
+
+void Prim(vertice *salida) {
+    salida->descubierto = true;
+    while (!todas_aristas_evaluadas()) {
+        //En teoria, adyacente deberia devolver SIEMPRE una arista con un solo descubierto en alguno de los extremos
+        //ya que estoy llamando a buscar_obsoletos() al inicio de cada ciclo. Si no fuera asi, se crearian bucles infinitos
+        buscar_obsoletos();
+        arista *adyacente = buscar_siguiente();
+        vertice *el_descubierto = buscar_descubierto(adyacente); //quien es el descubierto de la arista devuelta??
+        vertice *vecino = buscar_vecino(adyacente, el_descubierto); //quien es el vecino no descubierto??
+        vecino->descubierto = true;
+        insertar_en_arbol(adyacente);
+    }
+    imprimir_MST();
 }
