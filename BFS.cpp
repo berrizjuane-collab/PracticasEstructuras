@@ -25,11 +25,14 @@ vertice *cola = NULL;
 void queue(vertice *insertar) {
     insertar->procesado = true;
     vertice *recorrido = cola;
-    if (!cola) return;
+    if (!cola) {
+        insertar->sig_cola = cola;
+        cola = insertar;
+    }
     while (recorrido->sig_cola) {
         recorrido = recorrido->sig_cola;
     }
-    insertar->sig_cola = recorrido->sig_cola;
+    insertar->sig_cola = recorrido->sig_cola; //con respecto a insertar->sig_cola = NULL, esta linea ya lo hace (recorrido->sig_cola es NULL)
     recorrido->sig_cola = insertar;
 }
 
@@ -81,9 +84,11 @@ void BFS(vertice *raiz) {
         while (inmediata) {
             vertice *vecino = buscar_vecino(actual, inmediata);
             arista *siguiente = siguiente_arista(actual, inmediata);
-            vecino->nivel = actual->nivel + 1;
-            vecino->predecesor = actual;
-            if (!vecino->procesado) queue(vecino);
+            if (!vecino->procesado) {
+                vecino->nivel = actual->nivel + 1;
+                vecino->predecesor = actual;
+                queue(vecino);
+            }
             inmediata = siguiente;
         }
     }
