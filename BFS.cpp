@@ -11,13 +11,33 @@ struct arista {
 
 struct vertice {
     int dato;
-    bool evaluado = false;
-    bool alcanzado = false;
+    int nivel = 0;
+    bool procesado = false;
+    vertice *sig_cola;
     arista *adyacentes = NULL;
     vertice *siguiente_lista = NULL;
+    vertice *predecesor = NULL;
 };
 
 vertice *lista_vertices = NULL;
+vertice *cola = NULL;
+
+void queue(vertice *insertar) {
+    insertar->procesado = true;
+    vertice *recorrido = cola;
+    if (!cola) return;
+    while (recorrido->sig_cola) {
+        recorrido = recorrido->sig_cola;
+    }
+    insertar->sig_cola = recorrido->sig_cola;
+    recorrido->sig_cola = insertar;
+}
+
+vertice *dequeue() {
+    vertice *retornar = cola;
+    cola = cola->sig_cola;
+    return retornar;
+}
 
 void crear_arista(vertice *llegada, vertice *salida, bool nodirigido) {
     arista *nueva = new arista();
@@ -49,36 +69,22 @@ arista *siguiente_arista(vertice *A, arista *actual) {
     }
 }
 
-vertice *buscar_siguiente() {
-    vertice *recorrido = lista_vertices;
-    while (recorrido) {
-        if (recorrido->alcanzado && !recorrido->evaluado) return recorrido;
-        recorrido = recorrido->siguiente_lista;
-    }
-    return recorrido;
-}
-
-bool todos_evaluados() {
-    vertice *recorrido = lista_vertices;
-    while (recorrido) {
-        if (!recorrido->evaluado) return false;
-        recorrido = recorrido->siguiente_lista;
-    }
-    return true;
+bool cola_vacia() {
+    return (cola == NULL);
 }
 
 void BFS(vertice *raiz) {
-    raiz->alcanzado = true;
-    while (!todos_evaluados()) {
-        vertice *actual = buscar_siguiente();
-        if (actual == NULL) return;
-        actual->evaluado = true;
-        arista *adyacente = actual->adyacentes;
-        while (adyacente) {
-            vertice *vecino = buscar_vecino(actual, adyacente);
-            arista *siguiente = siguiente_arista(actual, adyacente);
-            vecino->alcanzado = true;
-            adyacente = siguiente;
+    queue(raiz);
+    while (!cola_vacia()) {
+        vertice *actual = dequeue();
+        arista *inmediata = actual->adyacentes;
+        while (inmediata) {
+            vertice *vecino = buscar_vecino(actual, inmediata);
+            arista *siguiente = siguiente_arista(actual, inmediata);
+            vecino->nivel = actual->nivel + 1;
+            vecino->predecesor = actual;
+            if (!vecino->procesado) queue(vecino);
+            inmediata = siguiente;
         }
     }
 }
