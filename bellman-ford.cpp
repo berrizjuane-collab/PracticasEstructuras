@@ -7,19 +7,19 @@ const int infinito = 10000;
 struct vertice;
 
 struct arista {
-    vertice *llegada;
-    vertice *salida;
+    vertice *llegada = NULL;
+    vertice *salida = NULL;
     int peso;
-    arista *sig_llegada;
-    arista *sig_salida; //enfoque similar al dijkstra
+    arista *sig_llegada = NULL;
+    arista *sig_salida = NULL; //enfoque similar al dijkstra
 };
 
 struct vertice {
     int dato;
     int distancia_acumulada = infinito;
-    arista *lista_aristas;
-    vertice *sig_lista_vertices;
-    vertice *predecesor;
+    arista *lista_aristas = NULL;
+    vertice *sig_lista_vertices = NULL;
+    vertice *predecesor = NULL;
 };
 
 vertice *lista_vertices = NULL;
@@ -29,14 +29,11 @@ void insertar_vertice(vertice *insertar) {
     lista_vertices = insertar;
 }
 
-void crear_arista (vertice *A, vertice *B, int peso) {
+void crear_arista (vertice *A, vertice *B, int peso) { //La idea de bellman ford es que sea estrictamente dirigido
     arista *nueva = new arista();
     nueva->peso = peso;
     nueva->llegada = A;
     nueva->salida = B;
-    
-    nueva->sig_llegada = A->lista_aristas;
-    A->lista_aristas = nueva;
 
     nueva->sig_salida = B->lista_aristas;
     B->lista_aristas = nueva;
@@ -60,7 +57,7 @@ void imprimir_ruta(vertice *llegada) {
     if (llegada == NULL) return;
 
     imprimir_ruta(llegada->predecesor);
-    cout << llegada->dato << "->";
+    cout << llegada->dato << "-> Distancia acumulada: " << llegada->distancia_acumulada << endl;
 }
 
 int cantidad_vertices() {
@@ -78,6 +75,7 @@ void bellman_ford(vertice *salida) {
     int cantidad = cantidad_vertices();
     if (cantidad == 0) return;
     for (int i = 0; i < cantidad; i++) {
+        bool hubo_relajacion = false;
         vertice *recorrido = lista_vertices;
         while (recorrido) {
             if (recorrido->distancia_acumulada != infinito) {
@@ -89,11 +87,16 @@ void bellman_ford(vertice *salida) {
                     if (nueva_distancia < vecino->distancia_acumulada) {
                         vecino->distancia_acumulada = nueva_distancia;
                         vecino->predecesor = recorrido;
+                        hubo_relajacion = true;
                     }
                     inmediata = siguiente;
                 }
             }
             recorrido = recorrido->sig_lista_vertices;
+        }
+        if (i == cantidad-1 && hubo_relajacion) {
+            cout << "Ciclo negativo detectado. No existe solucion para el grafo" << endl;
+            return;
         }
     }
     vertice *actual = lista_vertices;
