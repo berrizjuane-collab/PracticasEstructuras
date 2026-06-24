@@ -5,6 +5,8 @@
 //adyacencias
 
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 struct vertice;
@@ -61,11 +63,8 @@ arista *buscar_siguiente() { //dada la lista de aristas, busco la arista de meno
     arista *recorrido = lista_aristas;
     arista *minima = NULL;
     while (recorrido) {
-        if (!recorrido->evaluado) {
-            if (minima == NULL && arista_es_elegible(recorrido)) {
-                minima = recorrido;
-            }
-            else if (recorrido->peso < minima->peso && arista_es_elegible(recorrido)) {
+        if (!recorrido->evaluado && arista_es_elegible(recorrido)) {
+            if (minima == NULL || recorrido->peso < minima->peso) {
                 minima = recorrido;
             }
         }
