@@ -64,11 +64,11 @@ void imprimir_ruta(vertice *llegada) {
     cout << llegada->dato << " -> Distancia acumulada: " << llegada->distancia_acumulada << endl;
 }
 
-bool todos_evaluados() {
-    arista *recorrido = lista_aristas;
+bool todos_vertices_evaluados() {
+    vertice *recorrido = lista_vertices;
     while (recorrido) {
-        if (!recorrido->evaluada) return false;
-        recorrido = recorrido->sig_lista_aristas;
+        if (!recorrido->evaluado) return false;
+        recorrido = recorrido->sig_lista_vertices;
     }
     return true;
 }
@@ -90,11 +90,11 @@ vertice *buscar_menor() {
     return menor;
 }
 
-void Dijkstra(vertice *salida, vertice *ruta) {
+void Dijkstra(vertice *salida, vertice *destino) {
     salida->distancia_acumulada = 0;
-    while (!todos_evaluados()) {
+    while (!todos_vertices_evaluados()) {
         vertice *actual = buscar_menor();
-        if (actual == NULL || actual->distancia_acumulada == infinito) return;
+        if (actual == NULL || actual->distancia_acumulada == infinito) break;
         actual->evaluado = true;
         arista *inmediata = siguiente_arista(actual);
         while (inmediata) {
@@ -108,5 +108,44 @@ void Dijkstra(vertice *salida, vertice *ruta) {
             inmediata = siguiente;
         }
     }
-    imprimir_ruta(ruta);
+    imprimir_ruta(destino);
+}
+
+//grafo generado aleatoriamente
+int main() {
+    vertice *v1 = new vertice(); v1->dato = 1;
+    vertice *v2 = new vertice(); v2->dato = 2;
+    vertice *v3 = new vertice(); v3->dato = 3;
+    vertice *v4 = new vertice(); v4->dato = 4;
+    vertice *v5 = new vertice(); v5->dato = 5;
+    vertice *v6 = new vertice(); v6->dato = 6;
+
+    insertar_vertice(v1);
+    insertar_vertice(v2);
+    insertar_vertice(v3);
+    insertar_vertice(v4);
+    insertar_vertice(v5);
+    insertar_vertice(v6);
+
+    arista *a1 = new arista(); a1->llegada = v1; a1->salida = v2; a1->peso = 5;
+    arista *a2 = new arista(); a2->llegada = v1; a2->salida = v3; a2->peso = 3;
+    arista *a3 = new arista(); a3->llegada = v2; a3->salida = v4; a3->peso = 7;
+    arista *a4 = new arista(); a4->llegada = v2; a4->salida = v5; a4->peso = 2;
+    arista *a5 = new arista(); a5->llegada = v3; a5->salida = v4; a5->peso = 4;
+    arista *a6 = new arista(); a6->llegada = v3; a6->salida = v5; a6->peso = 6;
+    arista *a7 = new arista(); a7->llegada = v4; a7->salida = v6; a7->peso = 1;
+    arista *a8 = new arista(); a8->llegada = v5; a8->salida = v6; a8->peso = 3;
+
+    insertar_arista(a1);
+    insertar_arista(a2);
+    insertar_arista(a3);
+    insertar_arista(a4);
+    insertar_arista(a5);
+    insertar_arista(a6);
+    insertar_arista(a7);
+    insertar_arista(a8);
+
+    Dijkstra(v1, v6);
+
+    return 0;
 }
