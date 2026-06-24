@@ -91,9 +91,10 @@ void imprimir_MST() {
     int total = 0;
     cout << "MST: " << endl;
     while (recorrido) {
-        cout << recorrido->llegada << " -> " << recorrido->salida <<
-        "; Peso: " << recorrido->peso;
+        cout << recorrido->llegada->dato << " -> " << recorrido->salida->dato <<
+        "; Peso: " << recorrido->peso << endl;
         total = total + recorrido->peso;
+        recorrido = recorrido->siguiente_en_arbol;
     }
     cout << "Peso total del MST: " << total << endl;
 }
@@ -130,6 +131,7 @@ void Prim(vertice *salida) {
         //ya que estoy llamando a buscar_obsoletos() al inicio de cada ciclo. Si no fuera asi, se crearian bucles infinitos
         buscar_obsoletos();
         arista *adyacente = buscar_siguiente();
+        if (adyacente == NULL) break;
         vertice *el_descubierto = buscar_descubierto(adyacente); //quien es el descubierto de la arista devuelta??
         vertice *vecino = buscar_vecino(adyacente, el_descubierto); //quien es el vecino no descubierto??
         vecino->descubierto = true;
