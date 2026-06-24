@@ -26,9 +26,10 @@ arista *lista_aristas = NULL;
 arista *Arbol_MST = NULL;
 
 void insertar_arista_ordenada(arista *insertar) {
-    if (!Arbol_MST || insertar->peso < Arbol_MST->peso) {
+    if (!lista_aristas || insertar->peso < lista_aristas->peso) {
         insertar->sig_lista_aristas = Arbol_MST;
         Arbol_MST = insertar;
+        return;
     }
     arista *recorrido = Arbol_MST;
     while (recorrido->sig_lista_aristas && recorrido->sig_lista_aristas->peso < insertar->peso) {
@@ -54,7 +55,7 @@ void insertar_MST(arista *insertar) {
 
 vertice *encontrar_representante(vertice *A) {
     if (A->representante == A) return A;
-    encontrar_representante(A->representante);
+    return encontrar_representante(A->representante);
 }
 
 bool mismo_grupo(vertice *A, vertice *B) {
@@ -71,7 +72,7 @@ void imprimir_MST() {
     arista *recorrido = Arbol_MST;
     int total = 0;
     while (recorrido) {
-        cout << recorrido->salida << " -> " << recorrido->llegada << "; Peso: " << recorrido->peso << endl;
+        cout << recorrido->salida->dato << " -> " << recorrido->llegada->dato << "; Peso: " << recorrido->peso << endl;
         total = total + recorrido->peso;
         recorrido = recorrido->sig_MST;
     }
