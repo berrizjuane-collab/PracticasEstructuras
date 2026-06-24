@@ -47,7 +47,7 @@ void insertar_vertice(vertice *insertar) {
 }
 
 void insertar_en_arbol(arista *insertar) { //insercion en el MST
-    insertar->siguiente_en_lista = Arbol_MST;
+    insertar->siguiente_en_arbol = Arbol_MST;
     Arbol_MST = insertar; 
 }
 
